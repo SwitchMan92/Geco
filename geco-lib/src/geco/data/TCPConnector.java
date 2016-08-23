@@ -8,28 +8,39 @@ public class TCPConnector extends DataConnector
 {
 	private Socket 			m_ClientSocket;
 	
+	protected TCPConnector() {}
+	protected TCPConnector(String p_Address, int p_Port) throws Exception { this.connect(p_Address, p_Port); }
 	
-	public final void connect(String p_Address, int p_Port) throws Exception 
+	protected final void connect(String p_Address, int p_Port) throws Exception 
 	{
 		this.m_ClientSocket	=	new Socket(p_Address, p_Port);
 		super.connect(p_Address, p_Port);
-		this.onConnected();
 	}
 
-	public final void disconnect() throws IOException 
+	protected final void disconnect() throws Exception 
 	{
-		if (this.m_ClientSocket.isConnected())
+		if (this.m_ClientSocket.isClosed())
+			throw new SocketAlreadyClosedException();
+		
+		super.disconnect();
+		this.m_ClientSocket.close();
+	}
+
+	public final void sendDataToServer(byte[] p_Data) throws Exception
+	{
+		try
 			{
-				this.m_ClientSocket.close();
-				this.onDisconnected();
+				this.m_ClientSocket.getOutputStream().write(p_Data);
+				this.m_ClientSocket.getOutputStream().flush();
 			}
-			
-	}
-
-	protected final void sendDataToServer(byte[] p_Data) throws IOException
-	{
-		this.m_ClientSocket.getOutputStream().write(p_Data);
-		this.m_ClientSocket.getOutputStream().flush();
+		catch (IOException ioe)
+			{
+				throw new DisconnectedException(ioe.getCause().toString());
+			}
+		catch (Exception e)
+			{
+				throw new LinkException(e.getCause().toString());
+			}
 	}
 
 	protected final byte[] readDataFromServer() throws Exception 
@@ -46,31 +57,13 @@ public class TCPConnector extends DataConnector
 				
 				return l_ByteBufferOut;
 			}
-		catch ( java.net.SocketTimeoutException ste)
+		catch (IOException ioe)
 			{
-			
-				System.err.println(ste);
-			
-				this.onConnectionLost();
-				
-				this.disconnect();
-				
-				try
-				{
-					this.connect(this.getAddress(), this.getPort());
-					this.onReconnected();
-				}
-				catch (Exception e)
-				{
-					System.err.println(e);
-				}
-								
-				return new byte[0];
+				throw new DisconnectedException(ioe.getCause().toString());
 			}
 		catch (Exception e)
 			{
-				System.err.println(e);
-				return new byte[0];
+				throw new LinkException(e.getCause().toString());
 			}
 	}
 

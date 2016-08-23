@@ -3,24 +3,26 @@ package geco.data;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 
 public class UDPConnector extends DataConnector
 {
 	private DatagramSocket 	m_ClientSocket;
 	private InetAddress		m_IpAddress;
 	
+	protected UDPConnector() {}
+	protected UDPConnector(String p_Address, int p_Port) throws Exception { this.connect(p_Address, p_Port); }
 	
-	void connect(String p_Address, int p_Port) throws Exception 
+	protected void connect(String p_Address, int p_Port) throws Exception 
 	{
 	    this.m_IpAddress 	= 	InetAddress.getByName(p_Address);
-	    this.m_ClientSocket = 	new DatagramSocket();
-	    this.m_ClientSocket.setSoTimeout(1);
-	    this.m_ClientSocket.connect(m_IpAddress, p_Port);
+	    this.m_ClientSocket = 	new DatagramSocket(p_Port);
 		super.connect(p_Address, p_Port);
 	}
 
 	@Override
-	void disconnect() throws Exception 
+	protected void disconnect() throws Exception 
 	{
 		if (this.m_ClientSocket.isConnected())
 			this.m_ClientSocket.close();
@@ -45,7 +47,7 @@ public class UDPConnector extends DataConnector
 	}
 
 	@Override
-	void sendDataToServer(byte[] p_Data) throws Exception 
+	public void sendDataToServer(byte[] p_Data) throws Exception 
 	{
 		DatagramPacket sendPacket = new DatagramPacket(p_Data, p_Data.length, this.m_IpAddress, this.getPort());
 		this.m_ClientSocket.send(sendPacket);

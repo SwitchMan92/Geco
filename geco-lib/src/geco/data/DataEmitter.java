@@ -1,34 +1,43 @@
 package geco.data;
 
-import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class DataEmitter extends IDataEmitter
 {
-	private ArrayList<IDataPipeline> m_Pipelines;
+	private CopyOnWriteArrayList<IDataConnector> m_Connectors;
+
+	public DataEmitter() { this.m_Connectors = new CopyOnWriteArrayList<IDataConnector>(); }
 	
-	public DataEmitter()
+	@Override
+	public void sendData(byte[] p_Data) throws Exception
 	{
-		this.m_Pipelines = new ArrayList<IDataPipeline>();
-	}	
-	
-	protected void addPipeline(IDataPipeline p_Pipeline)
-	{
-		if (!this.m_Pipelines.contains(p_Pipeline))
-			this.m_Pipelines.add(p_Pipeline);
-	}
-	
-	protected void removePipeline(IDataPipeline p_Pipeline)
-	{
-		if (this.m_Pipelines.contains(p_Pipeline))
-			this.m_Pipelines.remove(p_Pipeline);
+		Iterator<IDataConnector> l_Iterator = this.m_Connectors.iterator();
+		
+		while (l_Iterator.hasNext())
+		{
+			IDataConnector l_Connector = l_Iterator.next();
+			
+			l_Connector.sendDataToServer(p_Data);
+		}
+		
 	}
 
-	public void sendData(byte[] p_Data)
-	{
-		this.m_Pipelines.forEach((l_Pipeline) -> {
-			l_Pipeline.onDataEmitted(this, p_Data);			
-		});
-	}
-	
-	
+	@Override
+	public final void addConnector(IDataConnector p_Connector) throws Exception
+		{
+			if (this.m_Connectors.contains(p_Connector))
+				throw new Exception("Connector already present in the connector list");
+			
+			this.m_Connectors.add(p_Connector);
+		}
+
+	@Override
+	public final void removeConnector(IDataConnector p_Connector) throws Exception
+		{
+			if (!this.m_Connectors.contains(p_Connector))
+				throw new Exception("Connector not present in the connector list");
+			
+			this.m_Connectors.remove(p_Connector);
+		}
 }
