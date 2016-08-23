@@ -1,14 +1,20 @@
 package geco.data;
 
+import com.MAVLink.Parser;
+
+import MAVLink.MAVLinkPacket;
+
 public class CustomER extends IDataReceiver
 {
 	private DataEmitter 	m_Emitter;
+	private Parser			m_Parser;
 	
 	public IDataEmitter		getEmitter()	{ return this.m_Emitter; }
 	
 	public CustomER()
 	{
-		this.m_Emitter = new DataEmitter();
+		this.m_Emitter 	= new DataEmitter();
+		this.m_Parser 	= new Parser(); 
 	}
 	
 	final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
@@ -25,10 +31,16 @@ public class CustomER extends IDataReceiver
 	@Override
 	void onDataReceived(byte[] p_Data) throws Exception {
 		// TODO Auto-generated method stub
+		//System.out.println(bytesToHex(p_Data));
 		
-		System.out.println("Data received : ");
+		for (byte l_Byte : p_Data)
+			{
+				MAVLinkPacket l_Packet = this.m_Parser.mavlink_parse_char(Byte.toUnsignedInt(l_Byte));
+				
+				if (l_Packet != null)
+					System.out.println(l_Packet.unpack());
+			}
 		
-		System.out.println(bytesToHex(p_Data));
 		
 		//String l_Hello = new String(" sending : Hello !");
 		//this.m_Emitter.sendData(l_Hello.getBytes());
