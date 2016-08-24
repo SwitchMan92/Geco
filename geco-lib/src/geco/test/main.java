@@ -1,8 +1,8 @@
 package geco.test;
 
-import geco.data.CustomER;
-import geco.data.UDPConnector;
-import geco.data.UDPConnectorFactory;
+import geco.io.CustomER;
+import geco.io.UDPConnector;
+import geco.io.UDPConnectorFactory;
 
 public class main {
 
@@ -12,10 +12,19 @@ public class main {
 		{
 			UDPConnectorFactory.init(32);
 			UDPConnector l_Connector = (UDPConnector)UDPConnectorFactory.getInstance().createConnector("127.0.0.1", 14550);
-			CustomER l_Er = new CustomER();
+			TestMavlinkReceiver l_Er = new TestMavlinkReceiver();
 			
 			l_Connector.addReceiver(l_Er);
-			l_Er.getEmitter().addConnector(l_Connector);
+			l_Connector.connect("127.0.0.1", 14550);
+			
+			Thread.sleep(3000);
+			
+			l_Connector.disconnect();
+			
+			Thread.sleep(2000);
+			
+			l_Connector.connect("127.0.0.1", 14550);
+			
 			
 		}
 		catch(Exception e)
