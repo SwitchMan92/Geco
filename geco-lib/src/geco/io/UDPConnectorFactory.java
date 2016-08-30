@@ -2,6 +2,19 @@ package geco.io;
 
 public class UDPConnectorFactory extends DataConnectorFactory
 {
+	static
+		{
+			try
+				{
+					UDPConnectorFactory.init(32);
+				}
+			catch (Exception e)
+				{
+					e.printStackTrace();
+				}
+		}
+	
+	
 	private static UDPConnectorFactory g_Factory;
 	
 	public static void init(int p_NumThreads) throws Exception
@@ -23,11 +36,9 @@ public class UDPConnectorFactory extends DataConnectorFactory
 	}
 
 	@Override
-	protected DataConnector CreateConnector(String p_Address, int p_Port) throws Exception 
+	protected DataConnector CreateConnector() throws Exception 
 	{
 		UDPConnector l_Connector = new UDPConnector();
-		l_Connector.setAddress(p_Address);
-		l_Connector.setPort(p_Port);
 		return l_Connector;
 	}
 }

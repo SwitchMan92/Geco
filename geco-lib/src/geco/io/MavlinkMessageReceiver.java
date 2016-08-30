@@ -23,7 +23,22 @@ public abstract class MavlinkMessageReceiver extends IDataReceiver implements IM
 				MAVLinkPacket l_Packet = this.m_MavlinkPacketParser.mavlink_parse_char(Byte.toUnsignedInt(l_Byte));
 				
 				if (l_Packet != null)
-					this.onMessageReceived(l_Packet.unpack());
+				{
+					try
+						{
+							this.onMessageReceived(l_Packet.unpack());
+						}
+					catch(java.lang.IndexOutOfBoundsException e)
+						{
+							
+						}
+					catch (Exception e)
+						{
+							throw e;
+						}
+				}
+					
+						
 			}
 	}
 

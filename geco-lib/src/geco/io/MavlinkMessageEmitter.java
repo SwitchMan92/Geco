@@ -2,7 +2,7 @@ package geco.io;
 
 import com.MAVLink.Messages.MAVLinkMessage;
 
-public class MavlinkMessageEmitter extends DataEmitter
+public class MavlinkMessageEmitter extends DataEmitter implements IMavlinkMessageEmitter
 {
 	public void sendMessage(MAVLinkMessage p_Message) throws Exception 
 		{

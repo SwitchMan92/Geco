@@ -15,11 +15,11 @@ public abstract class DataConnectorFactory
 		this.m_ThreadPool = Executors.newFixedThreadPool(m_Numthreads);
 	}
 	
-	protected abstract DataConnector CreateConnector(String p_Address, int p_Port) throws Exception;
-	
-	public IDataConnector createConnector(String p_Address, int p_Port) throws Exception
+	protected abstract DataConnector CreateConnector() throws Exception;
+	//String p_Address, int p_Port
+	public IDataConnector createConnector() throws Exception
 	{
-		DataConnector l_Connector = this.CreateConnector(p_Address, p_Port);
+		DataConnector l_Connector = this.CreateConnector();
 		this.m_ThreadPool.execute(l_Connector);
 		return l_Connector;
 	}

@@ -5,6 +5,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.util.concurrent.locks.ReentrantLock;
 
 import geco.io.DataConnector.ConnectionAlreadyClosedException;
 
@@ -12,32 +13,62 @@ public class UDPConnector extends DataConnector
 {
 	private DatagramSocket 	m_ClientSocket;
 	private InetAddress		m_IpAddress;
+	private ReentrantLock	m_SocketLock;
 	
-	protected UDPConnector() {}
+	
+	protected UDPConnector() { this.m_SocketLock = new ReentrantLock(); }
 	
 	public void connect(String p_Address, int p_Port) throws Exception 
 	{
-	    this.m_IpAddress 	= 	InetAddress.getByName(p_Address);
-	    
-	    this.m_ClientSocket = 	new DatagramSocket(null);
-	    this.m_ClientSocket.setReuseAddress(true);
-	    this.m_ClientSocket.bind(new InetSocketAddress(InetAddress.getByName(p_Address), p_Port));
-	    
-		super.connect(p_Address, p_Port);
+		this.m_SocketLock.lock();
+		
+		try
+			{
+			    this.m_IpAddress 	= 	InetAddress.getByName(p_Address);
+			    
+			    this.m_ClientSocket = 	new DatagramSocket(null);
+			    this.m_ClientSocket.setReuseAddress(true);
+			    this.m_ClientSocket.bind(new InetSocketAddress(InetAddress.getByName(p_Address), p_Port));
+			    
+				super.connect(p_Address, p_Port);
+			}
+		catch (Exception e)
+			{
+				throw e;
+			}
+		finally
+			{
+				this.m_SocketLock.unlock();
+			}
 	}
 
 	@Override
 	public final void disconnect() throws Exception 
 	{
-		if (!this.isConnected())
-			throw new ConnectionAlreadyClosedException();
+		this.m_SocketLock.lock();
 		
-		super.disconnect();
-		this.m_ClientSocket.close();
+		try
+			{
+				if (!this.isConnected())
+					throw new ConnectionAlreadyClosedException();
+				
+				super.disconnect();
+				this.m_ClientSocket.close();
+			}
+		catch (Exception e)
+			{
+				throw e;
+			}
+		finally
+			{
+				this.m_SocketLock.unlock();
+			}
 	}
 
 	protected final byte[] readDataFromServer() throws Exception 
 	{
+		this.m_SocketLock.lock();
+		
 		try
 			{
 				byte[] l_Buffer = new byte[this.m_ClientSocket.getReceiveBufferSize()];
@@ -52,13 +83,26 @@ public class UDPConnector extends DataConnector
 			{
 				return new byte[0];
 			}
+		finally
+			{
+				this.m_SocketLock.unlock();
+			}
 	}
 
 	@Override
 	public void sendDataToServer(byte[] p_Data) throws Exception 
 	{
-		DatagramPacket sendPacket = new DatagramPacket(p_Data, p_Data.length, this.m_IpAddress, this.getPort());
-		this.m_ClientSocket.send(sendPacket);
+		this.m_SocketLock.lock();
+		
+		try
+			{
+				DatagramPacket sendPacket = new DatagramPacket(p_Data, p_Data.length, this.m_IpAddress, this.getPort());
+				this.m_ClientSocket.send(sendPacket);
+			}
+		finally
+			{
+				this.m_SocketLock.unlock();
+			}
 	}
 
 }

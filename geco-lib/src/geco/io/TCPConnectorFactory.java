@@ -2,6 +2,18 @@ package geco.io;
 
 public class TCPConnectorFactory extends DataConnectorFactory
 {
+	static
+		{
+			try
+				{
+					TCPConnectorFactory.init(32);
+				}
+			catch (Exception e)
+				{
+					e.printStackTrace();
+				}
+		}
+	
 	private static TCPConnectorFactory g_Factory;
 	
 	public static void init(int p_NumThreads) throws Exception
@@ -23,11 +35,9 @@ public class TCPConnectorFactory extends DataConnectorFactory
 	}
 
 	@Override
-	protected DataConnector CreateConnector(String p_Address, int p_Port) throws Exception 
+	protected DataConnector CreateConnector() throws Exception 
 	{
 		TCPConnector l_Connector = new TCPConnector();
-		l_Connector.setAddress(p_Address);
-		l_Connector.setPort(p_Port);
 		return l_Connector;
 	}
 
