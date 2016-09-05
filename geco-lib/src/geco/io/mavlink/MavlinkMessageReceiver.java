@@ -1,12 +1,13 @@
-package geco.io;
+package geco.io.mavlink;
 
 import com.MAVLink.Parser;
 import com.MAVLink.Messages.MAVLinkMessage;
 import com.MAVLink.Messages.MAVLinkStats;
 
 import MAVLink.MAVLinkPacket;
+import geco.io.DataReceiver;
 
-public abstract class MavlinkMessageReceiver extends IDataReceiver implements IMavlinkMessageReceiver
+public abstract class MavlinkMessageReceiver extends DataReceiver implements IMavlinkMessageReceiver
 {
 	private Parser m_MavlinkPacketParser;
 	
@@ -15,8 +16,7 @@ public abstract class MavlinkMessageReceiver extends IDataReceiver implements IM
 			this.m_MavlinkPacketParser = new Parser();
 		}
 
-	@Override
-	protected void onDataReceived(byte[] p_Data) throws Exception 
+	protected void onDataReceived(byte[] p_Data) throws Exception
 	{
 		for (byte l_Byte : p_Data)
 			{

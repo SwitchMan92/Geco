@@ -4,10 +4,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.util.concurrent.locks.ReentrantLock;
-
-import geco.io.DataConnector.ConnectionAlreadyClosedException;
 
 public class UDPConnector extends DataConnector
 {

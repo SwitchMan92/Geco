@@ -11,18 +11,33 @@ import java.util.concurrent.locks.ReentrantLock;
 public abstract class DataConnector extends IDataConnector implements Runnable
 {
 	public class DisconnectedException 			extends Exception { 
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
 		public DisconnectedException(String p_Cause){
 			super(p_Cause);
 		}
 	};
 	
 	public class LinkException					extends Exception {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
 		public LinkException(String p_Cause){
 			super(p_Cause);
 		}
 	};
 	
 	public class ConnectionAlreadyClosedException 	extends Exception {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
 		public ConnectionAlreadyClosedException(){
 			super("Socket is already closed");
 		}
@@ -31,10 +46,7 @@ public abstract class DataConnector extends IDataConnector implements Runnable
 	
 	private String									m_Address;
 	private int										m_Port;
-	private CopyOnWriteArrayList<IDataReceiver> 	m_Receivers;
-	
-	private boolean 								m_Running;
-	private ReentrantLock							m_RunningLock;
+	private CopyOnWriteArrayList<DataReceiver> 		m_Receivers;
 	
 	private CONNECTOR_STATUS						m_Status;
 	private ReentrantLock							m_StatusLock;
@@ -55,7 +67,7 @@ public abstract class DataConnector extends IDataConnector implements Runnable
 	protected DataConnector()
 	{
 		this.m_StatusLock			=	new ReentrantLock();
-		this.m_Receivers			=	new CopyOnWriteArrayList<IDataReceiver>();
+		this.m_Receivers			=	new CopyOnWriteArrayList<DataReceiver>();
 		this.setStatus(CONNECTOR_STATUS.CS_DISCONNECTED);
 	}
 	
@@ -203,17 +215,17 @@ public abstract class DataConnector extends IDataConnector implements Runnable
 	
 	void sendDataToReceivers(byte[] p_Data) throws Exception
 	{
-		Iterator<IDataReceiver> l_Iterator = this.m_Receivers.iterator();
+		Iterator<DataReceiver> l_Iterator = this.m_Receivers.iterator();
 		
 		while(l_Iterator.hasNext())
 			{
-				IDataReceiver l_Receiver = l_Iterator.next();
+				DataReceiver l_Receiver = l_Iterator.next();
 				l_Receiver.onDataReceived(p_Data);
 			}
 	}
 	
 	@Override
-	public final void addReceiver(IDataReceiver p_Receiver) throws Exception 
+	public final void addReceiver(DataReceiver p_Receiver) throws Exception 
 	{
 		if (!this.m_Receivers.contains(p_Receiver))
 			this.m_Receivers.add(p_Receiver);
@@ -221,7 +233,7 @@ public abstract class DataConnector extends IDataConnector implements Runnable
 			throw new Exception("Connector already connected to receiver");
 	}
 	@Override
-	public final void removeReceiver(IDataReceiver p_Receiver) throws Exception 
+	public final void removeReceiver(DataReceiver p_Receiver) throws Exception 
 	{
 		if (this.m_Receivers.contains(p_Receiver))
 			this.m_Receivers.remove(p_Receiver);
@@ -229,15 +241,15 @@ public abstract class DataConnector extends IDataConnector implements Runnable
 			throw new Exception("Connector not connected to receiver");
 	}
 	@Override
-	public final IDataReceiver getReceiver(int p_Index) throws Exception 
+	public final DataReceiver getReceiver(int p_Index) throws Exception 
 	{
 		return this.m_Receivers.get(p_Index);
 	}
 	
 	@Override
-	public final ArrayList<IDataReceiver> getReceivers() 
+	public final ArrayList<DataReceiver> getReceivers() 
 	{
-		return new ArrayList<IDataReceiver>(this.m_Receivers);
+		return new ArrayList<DataReceiver>(this.m_Receivers);
 	}
 	
 }

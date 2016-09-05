@@ -1,6 +1,8 @@
-package geco.io;
+package geco.io.mavlink;
 
 import com.MAVLink.Messages.MAVLinkMessage;
+
+import geco.io.DataEmitter;
 
 public class MavlinkMessageEmitter extends DataEmitter implements IMavlinkMessageEmitter
 {

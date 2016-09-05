@@ -1,4 +1,4 @@
-package geco.io;
+package geco.io.mavlink;
 
 import com.MAVLink.Messages.MAVLinkMessage;
 

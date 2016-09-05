@@ -2,8 +2,8 @@ package geco.test;
 
 
 
-import geco.io.UDPConnector;
-import geco.io.UDPConnectorFactory;
+import geco.io.IDataConnector;
+import geco.vehicle.BasicVehicle.BasicVehicle;
 
 public class main
 {
@@ -12,11 +12,35 @@ public class main
 	{
 		try
 			{
-				UDPConnector l_Connector = (UDPConnector)UDPConnectorFactory.getInstance().createConnector();
-				TestMavlinkReceiver l_Er = new TestMavlinkReceiver();
+				BasicVehicle l_Vehicle = new BasicVehicle() {
+					
+					@Override
+					public void onReconnected(IDataConnector p_Connector) {
+						// TODO Auto-generated method stub
+						
+					}
+					
+					@Override
+					public void onDisconnected(IDataConnector p_Connector) {
+						// TODO Auto-generated method stub
+						
+					}
+					
+					@Override
+					public void onConnectionLost(IDataConnector p_Connector) {
+						// TODO Auto-generated method stub
+						
+					}
+					
+					@Override
+					public void onConnected(IDataConnector p_Connector) {
+						// TODO Auto-generated method stub
+						
+					}
+				};
 				
-				l_Connector.addReceiver(l_Er);
-				l_Connector.connect("127.0.0.1", 14550);
+				l_Vehicle.connect("tcp", "127.0.0.1", 5760);
+				
 			}
 		catch(Exception e)
 			{
