@@ -26,6 +26,8 @@ public abstract class MavlinkMessageReceiver extends DataReceiver implements IMa
 				{
 					try
 						{
+							MAVLinkMessage l_Message = l_Packet.unpack();
+							
 							this.onMessageReceived(l_Packet.unpack());
 						}
 					catch(java.lang.IndexOutOfBoundsException e)

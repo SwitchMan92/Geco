@@ -1,22 +1,41 @@
-package geco.vehicle.BasicVehicle;
+package geco.vehicle.CommonVehicle;
 
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
 
-
-
-public interface IBasicVehicle 
+public interface ICommonVehicle 
 {
-	Short 			getAutopilot();
-	Short 			getMavlinkVersion();
+	Short 				getAutopilot					();
+	Short 				getMavlinkVersion				();
+	Integer				getMavState						();
+	Integer 			getBaseMode						();
+	Vector3D			getAcceleration					();
+	Vector3D			getAngularSpeed					();
+	Vector3D			getMagneticField				();
 	
-	Integer			getMavState();
-	Integer 		getBaseMode();
+	Double				getYaw							();
+	Double				getPitch						();
+	Double				getRoll							();
 	
-	Vector3D		getAcceleration();
-	Vector3D		getAngularSpeed();
-	Vector3D		getMagneticField();
+	Double				getYawSpeed						();
+	Double				getRollSpeed					();
+	Double				getPitchSpeed					();
+
+	Integer 			getLatitude						();
+	Integer 			getLongitude					();
 	
-	AttitudeData	getAttitude();
+	Double 				getHeight						();
+	
+	void 				addListener						(ICommonVehicleListener p_Listener);
+	void 				removeListener					(ICommonVehicleListener p_Listener);
 	
 }
+
+
+
+
+
+
+
+
+

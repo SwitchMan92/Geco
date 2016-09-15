@@ -1,9 +1,11 @@
 package geco.test;
 
+import java.util.Arrays;
+import java.util.Scanner;
 
-
-import geco.io.IDataConnector;
-import geco.vehicle.BasicVehicle.BasicVehicle;
+import com.MAVLink.common.msg_param_request_list;
+import com.MAVLink.enums.MAV_CMD;
+import com.MAVLink.enums.MAV_MODE;
 
 public class main
 {
@@ -12,34 +14,70 @@ public class main
 	{
 		try
 			{
-				BasicVehicle l_Vehicle = new BasicVehicle() {
-					
-					@Override
-					public void onReconnected(IDataConnector p_Connector) {
-						// TODO Auto-generated method stub
-						
-					}
-					
-					@Override
-					public void onDisconnected(IDataConnector p_Connector) {
-						// TODO Auto-generated method stub
-						
-					}
-					
-					@Override
-					public void onConnectionLost(IDataConnector p_Connector) {
-						// TODO Auto-generated method stub
-						
-					}
-					
-					@Override
-					public void onConnected(IDataConnector p_Connector) {
-						// TODO Auto-generated method stub
-						
-					}
-				};
+				CustomVehicle l_Vehicle = new CustomVehicle();
+			
+				l_Vehicle.connect("tcp", "127.0.0.1", 5762);
 				
-				l_Vehicle.connect("tcp", "127.0.0.1", 5760);
+				Scanner reader = new Scanner(System.in);  // Reading from System.in
+				
+				while(true)
+				{
+					System.out.println("Enter a command: ");
+					System.out.println("1 - switch to guided armed");
+					System.out.println("2 - arm throttle");
+					System.out.println("3 - takeoff 20");
+					System.out.println("4 - send long command");
+					System.out.println("5 - load parameters");
+					System.out.println("6 - request parameters");
+					
+					int n = reader.nextInt();
+					
+					switch (n)
+					{
+						case 1:
+							l_Vehicle.setMode(4);
+							break;
+							
+						case 2:
+							l_Vehicle.arm_throttle();
+							break;
+							
+						case 3:
+							l_Vehicle.takeOff(30);
+							break;
+							
+						case 4:
+							reader.nextLine();
+							String l_NextLine = reader.nextLine();
+							
+							float[] l_Params = new float[9];
+							
+							int counter=0;
+							
+							for (String l_ParamString : l_NextLine.split(" "))
+							{
+								l_Params[counter] = Float.parseFloat(l_ParamString);
+								counter++;
+							}
+							
+							l_Vehicle.sendLong((short)l_Params[0], Arrays.copyOfRange(l_Params, 1, 8));
+							break;
+							
+						case 5:
+							l_Vehicle.setParameters();
+							break;
+						
+						case 6:
+							l_Vehicle.requestParameters();
+							break;
+							
+						default:
+							break;
+					}
+					
+					
+				}
+				
 				
 			}
 		catch(Exception e)
