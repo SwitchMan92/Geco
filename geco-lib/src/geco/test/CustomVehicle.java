@@ -176,7 +176,6 @@ public class CustomVehicle extends CommonVehicle
 		
 		l_Command.command = MAV_CMD.MAV_CMD_NAV_TAKEOFF;
 		
-		
 		l_Command.param1 = 0f;
 		l_Command.param2 = 0f;
 		l_Command.param3 = 1f;
@@ -222,18 +221,6 @@ public class CustomVehicle extends CommonVehicle
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-	}
-	
-	
-	private void sendParam(String p_ParamName, float p_ParamValue)
-	{
-		msg_param_value l_Param = new msg_param_value();
-		
-		byte[] l_ByteArrayString = p_ParamName.getBytes();
-		byte[] l_FinalArray = Arrays.copyOf(l_ByteArrayString, l_ByteArrayString.length+1);
-		
-		l_Param.param_id = l_FinalArray;
-		l_Param.param_value = p_ParamValue;		
 	}
 	
 	@Override
@@ -319,7 +306,7 @@ public class CustomVehicle extends CommonVehicle
 	@Override
 	protected void onHeightChanged(double p_Height) {
 		// TODO Auto-generated method stub
-		//System.err.println("height : " + String.valueOf(p_Height));
+		System.err.println("height : " + String.valueOf(p_Height));
 		System.err.flush();
 	}
 
@@ -333,8 +320,8 @@ public class CustomVehicle extends CommonVehicle
 	@Override
 	protected void onAccelerationChanged(Vector3D p_Acceleration) {
 		// TODO Auto-generated method stub
-		//System.err.println("acceleration : " + p_Acceleration.toString());
-		//System.err.flush();
+		System.err.println("acceleration : " + p_Acceleration.toString());
+		System.err.flush();
 	}
 
 	@Override
@@ -375,5 +362,17 @@ public class CustomVehicle extends CommonVehicle
 	protected void onStatusTextReceived(String p_Text) {
 		System.err.println(p_Text);
 		System.err.flush();
+	}
+
+	@Override
+	public void arm(int p_Id) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void disarm(int p_Id) {
+		// TODO Auto-generated method stub
+		
 	}
 }

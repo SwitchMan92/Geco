@@ -7,6 +7,7 @@ import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import com.MAVLink.Messages.MAVLinkMessage;
 import com.MAVLink.ardupilotmega.msg_data64;
 import com.MAVLink.common.msg_attitude;
+import com.MAVLink.common.msg_command_ack;
 import com.MAVLink.common.msg_command_int;
 import com.MAVLink.common.msg_command_long;
 import com.MAVLink.common.msg_global_position_int;
@@ -72,28 +73,29 @@ public abstract class CommonVehicle extends MavlinkMessageReceiver implements IC
 	private Double								m_Height;
 	
 	
-	protected abstract void	onYawChanged			(double p_Yaw);
-	protected abstract void	onPitchChanged			(double p_Pitch);
-	protected abstract void	onRollChanged			(double p_Roll);
+	protected abstract void	onYawChanged				(double p_Yaw);
+	protected abstract void	onPitchChanged				(double p_Pitch);
+	protected abstract void	onRollChanged				(double p_Roll);
 	
-	protected abstract void	onYawSpeedChanged		(double p_YawSpeed);
-	protected abstract void	onPitchSpeedChanged		(double p_PitchSpeed);
-	protected abstract void	onRollSpeedChanged		(double p_RollSpeed);
+	protected abstract void	onYawSpeedChanged			(double p_YawSpeed);
+	protected abstract void	onPitchSpeedChanged			(double p_PitchSpeed);
+	protected abstract void	onRollSpeedChanged			(double p_RollSpeed);
 	
-	protected abstract void onLongitudeChanged		(int p_Longitude);
-	protected abstract void onLatitudeChanged		(int p_Latitude);
-	protected abstract void onHeightChanged			(double p_Height);
+	protected abstract void onLongitudeChanged			(int p_Longitude);
+	protected abstract void onLatitudeChanged			(int p_Latitude);
+	protected abstract void onHeightChanged				(double p_Height);
 	
-	protected abstract void onMagneticFieldChanged	(Vector3D p_MagField);
-	protected abstract void onAccelerationChanged	(Vector3D p_Acceleration);
-	protected abstract void onAngularSpeedChanged	(Vector3D p_AngularSpeed);
+	protected abstract void onMagneticFieldChanged		(Vector3D p_MagField);
+	protected abstract void onAccelerationChanged		(Vector3D p_Acceleration);
+	protected abstract void onAngularSpeedChanged		(Vector3D p_AngularSpeed);
 	
-	protected abstract void onMavStateChanged		(int p_MavState);
-	protected abstract void onAutopilotChanged		(short p_Autopilot);
-	protected abstract void onMavlinkVersionChanged	(short p_MavlinkVersion);
-	protected abstract void onBaseModeChanged		(int p_BaseMode);
+	protected abstract void onMavStateChanged			(int p_MavState);
+	protected abstract void onAutopilotChanged			(short p_Autopilot);
+	protected abstract void onMavlinkVersionChanged		(short p_MavlinkVersion);
+	protected abstract void onBaseModeChanged			(int p_BaseMode);
 	
-	protected abstract void onStatusTextReceived	(String p_Text);
+	protected abstract void onStatusTextReceived		(String p_Text);
+	
 	
 	
 	public Short 			getAutopilot				() 						{ synchronized(this.m_Autopilot)			{ return this.m_Autopilot; 			}	}
@@ -204,22 +206,19 @@ public abstract class CommonVehicle extends MavlinkMessageReceiver implements IC
 				this.setMavlinkVersionAttr(l_Message.mavlink_version);
 				this.setMavStateAttr(l_Message.system_status);
 				
-				
 				msg_heartbeat l_Hb = new msg_heartbeat();
-				l_Hb.sysid 	= 1;
-				l_Hb.compid = 1;
+				l_Hb.sysid=255;
+				l_Hb.compid=0;
 				
 				try 
-				{
-					this.sendMessage(l_Hb);
-				} 
+					{
+						this.sendMessage(l_Hb);
+					} 
 				catch (Exception e) 
-				{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				
-				
+					{
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 			}
 		else if (p_Message instanceof msg_raw_imu)
 			{
@@ -312,10 +311,11 @@ public abstract class CommonVehicle extends MavlinkMessageReceiver implements IC
 			}
 		else if (p_Message instanceof msg_home_position)
 			{
-				
+			
 			}
 		else if (p_Message instanceof msg_nav_controller_output)
 			{
+			
 			}
 		else if (p_Message instanceof msg_position_target_global_int)
 			{
@@ -328,9 +328,17 @@ public abstract class CommonVehicle extends MavlinkMessageReceiver implements IC
 				System.err.println("parameter : " + new String(l_Message.param_id) + " - " + String.valueOf(l_Message.param_value));
 				System.err.flush();
 			}
+		else if (p_Message instanceof msg_command_ack)
+			{
+				msg_command_ack l_Message = (msg_command_ack)p_Message;
+				
+				System.err.println("command acknowledged : " + String.valueOf(l_Message.command) + " with status " + String.valueOf(l_Message.result));
+				System.err.flush();
+			}
 		else
 			{
 				//System.out.println(p_Message.getClass());
+				//System.out.flush();
 			}
 	}
 	

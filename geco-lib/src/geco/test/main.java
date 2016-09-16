@@ -3,10 +3,6 @@ package geco.test;
 import java.util.Arrays;
 import java.util.Scanner;
 
-import com.MAVLink.common.msg_param_request_list;
-import com.MAVLink.enums.MAV_CMD;
-import com.MAVLink.enums.MAV_MODE;
-
 public class main
 {
 
@@ -16,7 +12,7 @@ public class main
 			{
 				CustomVehicle l_Vehicle = new CustomVehicle();
 			
-				l_Vehicle.connect("tcp", "127.0.0.1", 5762);
+				l_Vehicle.connect("tcp", "127.0.0.1", 5760);
 				
 				Scanner reader = new Scanner(System.in);  // Reading from System.in
 				
@@ -55,10 +51,10 @@ public class main
 							int counter=0;
 							
 							for (String l_ParamString : l_NextLine.split(" "))
-							{
-								l_Params[counter] = Float.parseFloat(l_ParamString);
-								counter++;
-							}
+								{
+									l_Params[counter] = Float.parseFloat(l_ParamString);
+									counter++;
+								}
 							
 							l_Vehicle.sendLong((short)l_Params[0], Arrays.copyOfRange(l_Params, 1, 8));
 							break;

@@ -26,8 +26,13 @@ public interface ICommonVehicle
 	
 	Double 				getHeight						();
 	
+	
+	void 				arm								(int p_Id);
+	void				disarm							(int p_Id);
+	
 	void 				addListener						(ICommonVehicleListener p_Listener);
 	void 				removeListener					(ICommonVehicleListener p_Listener);
+	
 	
 }
 
