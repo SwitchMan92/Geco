@@ -16,6 +16,8 @@ import com.MAVLink.common.msg_heartbeat;
 import com.MAVLink.common.msg_home_position;
 import com.MAVLink.common.msg_local_position_ned;
 import com.MAVLink.common.msg_mission_current;
+import com.MAVLink.common.msg_mission_item;
+import com.MAVLink.common.msg_mission_request;
 import com.MAVLink.common.msg_nav_controller_output;
 import com.MAVLink.common.msg_param_value;
 import com.MAVLink.common.msg_position_target_global_int;
@@ -33,6 +35,7 @@ import com.MAVLink.common.msg_terrain_request;
 import com.MAVLink.common.msg_vfr_hud;
 import com.MAVLink.common.msg_vibration;
 import com.MAVLink.enums.MAV_CMD;
+import com.MAVLink.enums.MAV_FRAME;
 import com.MAVLink.enums.MAV_PARAM_TYPE;
 
 import geco.io.IDataConnector;
@@ -334,6 +337,33 @@ public abstract class CommonVehicle extends MavlinkMessageReceiver implements IC
 				
 				System.err.println("command acknowledged : " + String.valueOf(l_Message.command) + " with status " + String.valueOf(l_Message.result));
 				System.err.flush();
+			}
+		else if (p_Message instanceof msg_mission_request)
+			{
+				
+				msg_mission_request l_MsgReq = (msg_mission_request)p_Message;
+			
+			
+				msg_mission_item l_Message 	= new msg_mission_item();
+				
+				l_Message.target_system 	= 0;
+				l_Message.target_component 	= 0;
+				
+				l_Message.frame = MAV_FRAME.MAV_FRAME_GLOBAL;
+				
+				l_Message.x = -35.364652f;
+				l_Message.y = 149.163995f;
+				l_Message.z = 20f;
+				
+				l_Message.current = 1;
+				l_Message.seq = l_MsgReq.seq;
+				
+				try {
+					this.sendMessage(l_Message);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		else
 			{
