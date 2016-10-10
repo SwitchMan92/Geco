@@ -1,22 +1,16 @@
 package geco.vehicle.CommonVehicle;
 
-import java.util.ArrayList;
-
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
 import com.MAVLink.Messages.MAVLinkMessage;
-import com.MAVLink.ardupilotmega.msg_data64;
 import com.MAVLink.common.msg_attitude;
 import com.MAVLink.common.msg_command_ack;
-import com.MAVLink.common.msg_command_int;
-import com.MAVLink.common.msg_command_long;
 import com.MAVLink.common.msg_global_position_int;
 import com.MAVLink.common.msg_gps_raw_int;
 import com.MAVLink.common.msg_heartbeat;
 import com.MAVLink.common.msg_home_position;
 import com.MAVLink.common.msg_local_position_ned;
 import com.MAVLink.common.msg_mission_current;
-import com.MAVLink.common.msg_mission_item;
 import com.MAVLink.common.msg_mission_request;
 import com.MAVLink.common.msg_nav_controller_output;
 import com.MAVLink.common.msg_param_value;
@@ -24,9 +18,15 @@ import com.MAVLink.common.msg_position_target_global_int;
 import com.MAVLink.common.msg_power_status;
 import com.MAVLink.common.msg_raw_imu;
 import com.MAVLink.common.msg_rc_channels;
+import com.MAVLink.common.msg_rc_channels_override;
 import com.MAVLink.common.msg_rc_channels_raw;
+import com.MAVLink.common.msg_rc_channels_scaled;
+import com.MAVLink.common.msg_scaled_imu;
 import com.MAVLink.common.msg_scaled_imu2;
+import com.MAVLink.common.msg_scaled_imu3;
 import com.MAVLink.common.msg_scaled_pressure;
+import com.MAVLink.common.msg_scaled_pressure2;
+import com.MAVLink.common.msg_scaled_pressure3;
 import com.MAVLink.common.msg_statustext;
 import com.MAVLink.common.msg_sys_status;
 import com.MAVLink.common.msg_system_time;
@@ -34,25 +34,24 @@ import com.MAVLink.common.msg_terrain_report;
 import com.MAVLink.common.msg_terrain_request;
 import com.MAVLink.common.msg_vfr_hud;
 import com.MAVLink.common.msg_vibration;
-import com.MAVLink.enums.MAV_CMD;
-import com.MAVLink.enums.MAV_FRAME;
-import com.MAVLink.enums.MAV_PARAM_TYPE;
 
 import geco.io.IDataConnector;
 import geco.io.TCPConnectorFactory;
 import geco.io.UDPConnectorFactory;
 import geco.io.mavlink.IMavlinkMessageEmitter;
 import geco.io.mavlink.MavlinkMessageEmitter;
-import geco.io.mavlink.MavlinkMessageReceiver;
+import geco.monitoring.mavlink.listener.CommonMavlinkMessageListener;
+import geco.monitoring.mavlink.parser.CommonMavlinkMessageRouter;
 
-public abstract class CommonVehicle extends MavlinkMessageReceiver implements ICommonVehicle, IMavlinkMessageEmitter
+public abstract class CommonVehicle extends CommonMavlinkMessageListener implements ICommonVehicle, IMavlinkMessageEmitter
 {
 	
 	private MavlinkMessageEmitter				m_Emitter;
+	private CommonMavlinkMessageRouter			m_MessageParser;
 	
 	private IDataConnector 						m_Connector;
-	private ArrayList<ICommonVehicleListener>	m_Listeners;
 	
+	private Short								m_MavType;
 	private Short 								m_Autopilot;
 	private Short 								m_MavlinkVersion;
 	
@@ -93,6 +92,7 @@ public abstract class CommonVehicle extends MavlinkMessageReceiver implements IC
 	protected abstract void onAngularSpeedChanged		(Vector3D p_AngularSpeed);
 	
 	protected abstract void onMavStateChanged			(int p_MavState);
+	protected abstract void onMavTypeChanged			(short p_Mavtype);
 	protected abstract void onAutopilotChanged			(short p_Autopilot);
 	protected abstract void onMavlinkVersionChanged		(short p_MavlinkVersion);
 	protected abstract void onBaseModeChanged			(int p_BaseMode);
@@ -100,7 +100,7 @@ public abstract class CommonVehicle extends MavlinkMessageReceiver implements IC
 	protected abstract void onStatusTextReceived		(String p_Text);
 	
 	
-	
+	public Short 			getMavtype					() 						{ synchronized(this.m_MavType)				{ return this.m_MavType; 			}	}
 	public Short 			getAutopilot				() 						{ synchronized(this.m_Autopilot)			{ return this.m_Autopilot; 			}	}
 	public Short 			getMavlinkVersion			() 						{ synchronized(this.m_MavlinkVersion)		{ return this.m_MavlinkVersion; 	}	}
 	public Integer			getMavState					()  					{ synchronized(this.m_MavState)				{ return this.m_MavState; 			}	}
@@ -122,7 +122,7 @@ public abstract class CommonVehicle extends MavlinkMessageReceiver implements IC
 	
 	public Double 			getHeight					()						{ synchronized(this.m_Height)				{ return this.m_Height; 			}	};
 	
-	
+	private void 			setMavType					(short p_Value)			{ synchronized(this.m_MavType)				{ if (this.m_MavType != p_Value) this.onMavTypeChanged(p_Value); this.m_MavType = new Short(p_Value);						}	}
 	private void 			setAutopilotAttr			(short p_Value)			{ synchronized(this.m_Autopilot)			{ if (this.m_Autopilot != p_Value) this.onAutopilotChanged(p_Value); this.m_Autopilot = new Short(p_Value);					}	}
 	private void 			setMavlinkVersionAttr		(short p_Value)			{ synchronized(this.m_MavlinkVersion)		{ if (this.m_MavlinkVersion != p_Value) this.onMavlinkVersionChanged(p_Value); this.m_MavlinkVersion = new Short(p_Value); 	} 	}
 	private void 			setMavStateAttr				(int p_Value)			{ synchronized(this.m_MavState)				{ if (this.m_MavState != p_Value) this.onMavStateChanged(p_Value); this.m_MavState = new Integer(p_Value); 					}	}
@@ -143,27 +143,26 @@ public abstract class CommonVehicle extends MavlinkMessageReceiver implements IC
 	private void			setLongitudeAttr			(int p_Longitude)		{ synchronized(this.m_Longitude)			{ if (this.m_Longitude != p_Longitude) this.onLongitudeChanged(p_Longitude); this.m_Longitude = p_Longitude; 				}	}
 	private void			setHeightAttr				(double p_Height)		{ synchronized(this.m_Height)				{ if (this.m_Height != p_Height) this.onHeightChanged(p_Height); this.m_Height = p_Height; 									}	}
 	
-	
-	public void 			addListener					(ICommonVehicleListener p_Listener)
-	{
-		synchronized(this.m_Listeners)
-			{
-				if (!this.m_Listeners.contains(p_Listener))
-					{
-						this.m_Listeners.add(p_Listener);
-					}
-			}
+	public 					CommonVehicle				()
+	{	
+		super(0, 0);
+		
+		this.m_MessageParser			=	new CommonMavlinkMessageRouter();
+		this.m_Acceleration				= 	new Vector3D(0d, 0d, 0d);
+		this.m_AngularSpeed				= 	new Vector3D(0d, 0d, 0d);
+		this.m_MagneticField			= 	new Vector3D(0d, 0d, 0d);
+		this.m_Emitter					=	new MavlinkMessageEmitter();
 	}
 	
-	public void 			removeListener				(ICommonVehicleListener p_Listener)
+	public CommonVehicle(int p_SystemId, int p_ComponentId)
 	{
-		synchronized(this.m_Listeners)
-			{
-				if (this.m_Listeners.contains(p_Listener))
-					{
-						this.m_Listeners.remove(p_Listener);
-					}
-			}
+		super(p_SystemId, p_ComponentId);
+		
+		this.m_MessageParser			=	new CommonMavlinkMessageRouter();
+		this.m_Acceleration				= 	new Vector3D(0d, 0d, 0d);
+		this.m_AngularSpeed				= 	new Vector3D(0d, 0d, 0d);
+		this.m_MagneticField			= 	new Vector3D(0d, 0d, 0d);
+		this.m_Emitter					=	new MavlinkMessageEmitter();
 	}
 	
 	public void 			connect						(String p_ConnectionMode, String p_Address, int p_Port) throws Exception
@@ -174,13 +173,17 @@ public abstract class CommonVehicle extends MavlinkMessageReceiver implements IC
 					{
 						case "TCP":
 							this.m_Connector = TCPConnectorFactory.getInstance().createConnector();
-							this.m_Connector.addReceiver(this);
+							this.m_MessageParser = new CommonMavlinkMessageRouter();
+							this.m_MessageParser.addListener(this);
+							this.m_Connector.addReceiver(this.m_MessageParser);
 							this.m_Connector.connect(p_Address, p_Port);
 							this.m_Emitter.addConnector(this.m_Connector);
 							break;
 						case "UDP":
 							this.m_Connector = UDPConnectorFactory.getInstance().createConnector();
-							this.m_Connector.addReceiver(this);
+							this.m_MessageParser = new CommonMavlinkMessageRouter();
+							this.m_MessageParser.addListener(this);
+							this.m_Connector.addReceiver(this.m_MessageParser);
 							this.m_Connector.connect(p_Address, p_Port);
 							this.m_Emitter.addConnector(this.m_Connector);
 							break;
@@ -198,207 +201,178 @@ public abstract class CommonVehicle extends MavlinkMessageReceiver implements IC
 			}
 	}
 	
-	public void 			onMessageReceived			(MAVLinkMessage p_Message)
-	{
-		if (p_Message instanceof msg_heartbeat)
-			{
-				msg_heartbeat l_Message = (msg_heartbeat)p_Message;
-				
-				this.setAutopilotAttr(l_Message.autopilot);
-				this.setBaseModeAttr(l_Message.base_mode);
-				this.setMavlinkVersionAttr(l_Message.mavlink_version);
-				this.setMavStateAttr(l_Message.system_status);
-				
-				msg_heartbeat l_Hb = new msg_heartbeat();
-				l_Hb.sysid=255;
-				l_Hb.compid=0;
-				
-				try 
-					{
-						this.sendMessage(l_Hb);
-					} 
-				catch (Exception e) 
-					{
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-			}
-		else if (p_Message instanceof msg_raw_imu)
-			{
-				msg_raw_imu l_Message = (msg_raw_imu)p_Message;
-				
-				this.setAccelerationAttr(new Vector3D(l_Message.xacc, l_Message.yacc, l_Message.zacc));
-				this.setAngularSpeedAttr(new Vector3D(l_Message.xgyro, l_Message.ygyro, l_Message.zgyro));
-				this.setMagneticFieldAttr(new Vector3D(l_Message.xmag, l_Message.ymag, l_Message.zmag));
-			}
-		else if (p_Message instanceof msg_scaled_imu2)
-			{
-				//msg_scaled_imu2 l_Message = (msg_scaled_imu2)p_Message;
-			}
-		else if (p_Message instanceof msg_scaled_pressure)
-			{
-				//msg_scaled_pressure l_Message = (msg_scaled_pressure)p_Message;
-			}
-		else if (p_Message instanceof msg_sys_status)
-			{
-				//msg_sys_status l_Message = (msg_sys_status)p_Message;
-			}		
-		else if (p_Message instanceof msg_power_status)
-			{
-				//msg_power_status l_Message = (msg_power_status)p_Message;
-			}
-		else if (p_Message instanceof msg_mission_current)
-			{
-				//msg_mission_current l_Message = (msg_mission_current)p_Message;
-			}
-		else if (p_Message instanceof msg_gps_raw_int)
-			{
-				//msg_gps_raw_int l_Message = (msg_gps_raw_int)p_Message;
-			}
-		else if (p_Message instanceof msg_global_position_int)
-			{
-				//msg_global_position_int l_Message = (msg_global_position_int)p_Message;
-			}
-		else if (p_Message instanceof msg_local_position_ned)
-			{
-				//msg_local_position_ned l_Message = (msg_local_position_ned)p_Message;
-			}
-		else if (p_Message instanceof msg_rc_channels_raw)
-			{
-				//msg_rc_channels_raw l_Message = (msg_rc_channels_raw)p_Message;
-			}
-		else if (p_Message instanceof msg_rc_channels)
-			{
-				//msg_rc_channels l_Message = (msg_rc_channels)p_Message;
-			}
-		else if (p_Message instanceof msg_vfr_hud)
-			{
-				//msg_vfr_hud l_Message = (msg_vfr_hud)p_Message;
-			}
-		else if (p_Message instanceof msg_system_time)
-			{
-				//msg_system_time l_Message = (msg_system_time)p_Message;
-			}
-		else if (p_Message instanceof msg_vibration)
-			{
-				//msg_vibration l_Message = (msg_vibration)p_Message;
-			}
-		else if (p_Message instanceof msg_attitude)
-			{
-				msg_attitude l_Message = (msg_attitude)p_Message;
-				
-				this.setYawAttr(l_Message.yaw);
-				this.setPitchAttr(l_Message.pitch);
-				this.setRollAttr(l_Message.roll);
-				
-				this.setPitchSpeedAttr(l_Message.pitchspeed);
-				this.setRollSpeedAttr(l_Message.rollspeed);
-				this.setYawSpeedAttr(l_Message.yawspeed);
-			}
-		else if (p_Message instanceof msg_terrain_report)
-			{
-				msg_terrain_report l_Message = (msg_terrain_report)p_Message;
-				
-				this.setHeightAttr(l_Message.current_height);
-				this.setLatitudeAttr(l_Message.lat);
-				this.setLongitudeAttr(l_Message.lon);
-			}
-		else if (p_Message instanceof msg_terrain_request)
-			{
-				//msg_terrain_request l_Message = (msg_terrain_request)p_Message;
-			}
-		else if (p_Message instanceof msg_statustext)
-			{
-				msg_statustext l_Message = (msg_statustext)p_Message;
-				this.onStatusTextReceived(l_Message.getText());
-			}
-		else if (p_Message instanceof msg_home_position)
-			{
-			
-			}
-		else if (p_Message instanceof msg_nav_controller_output)
-			{
-			
-			}
-		else if (p_Message instanceof msg_position_target_global_int)
-			{
-				
-			}
-		else if (p_Message instanceof msg_param_value)
-			{
-				msg_param_value l_Message = (msg_param_value)p_Message;
-				
-				System.err.println("parameter : " + new String(l_Message.param_id) + " - " + String.valueOf(l_Message.param_value));
-				System.err.flush();
-			}
-		else if (p_Message instanceof msg_command_ack)
-			{
-				msg_command_ack l_Message = (msg_command_ack)p_Message;
-				
-				System.err.println("command acknowledged : " + String.valueOf(l_Message.command) + " with status " + String.valueOf(l_Message.result));
-				System.err.flush();
-			}
-		else if (p_Message instanceof msg_mission_request)
-			{
-				
-				msg_mission_request l_MsgReq = (msg_mission_request)p_Message;
-			
-			
-				msg_mission_item l_Message 	= new msg_mission_item();
-				
-				l_Message.target_system 	= 0;
-				l_Message.target_component 	= 0;
-				
-				l_Message.frame = MAV_FRAME.MAV_FRAME_GLOBAL;
-				
-				l_Message.x = -35.364652f;
-				l_Message.y = 149.163995f;
-				l_Message.z = 20f;
-				
-				l_Message.current = 1;
-				l_Message.seq = l_MsgReq.seq;
-				
-				try {
-					this.sendMessage(l_Message);
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		else
-			{
-				//System.out.println(p_Message.getClass());
-				//System.out.flush();
-			}
-	}
-	
 	@Override
-	public void 			sendMessage					(MAVLinkMessage p_Message) throws Exception {
+	public void 			sendMessage					(MAVLinkMessage p_Message) throws Exception 
+	{
 		this.m_Emitter.sendMessage(p_Message);
 	}
-
-
-	public 					CommonVehicle				()
-	{	
-		this.m_Autopilot 				= 	0;
-		this.m_MavlinkVersion 			= 	0;
-		this.m_BaseMode					=	0;
-		this.m_MavState					= 	0;
-		this.m_Acceleration				= 	new Vector3D(0d, 0d, 0d);
-		this.m_AngularSpeed				= 	new Vector3D(0d, 0d, 0d);
-		this.m_MagneticField			= 	new Vector3D(0d, 0d, 0d);
-		this.m_Yaw						=	0d;
-		this.m_Pitch					=	0d;
-		this.m_Roll						=	0d;
-		this.m_YawSpeed					=	0d;
-		this.m_PitchSpeed				=	0d;
-		this.m_RollSpeed				=	0d;
-		this.m_Longitude				=	0;
-		this.m_Latitude					=	0;
-		this.m_Height					=	0d;
-		this.m_Listeners				=	new ArrayList<ICommonVehicleListener>();
-		this.m_Emitter					=	new MavlinkMessageEmitter();
+	
+	public void 	onRawImuMessageReceived					(msg_raw_imu p_Message)
+	{
+		
 	}
+	
+	public void		onScaledImuMessageReceived				(msg_scaled_imu p_Message)
+	{
+		
+	}
+	
+	public void		onScaledImu2MessageReceived				(msg_scaled_imu2 p_Message)
+	{
+		
+	}
+	
+	public void		onScaledImu3MessageReceived				(msg_scaled_imu3 p_Message)
+	{
+		
+	}
+	
+	public void		onScaledPressureMessageReceived			(msg_scaled_pressure p_Message)
+	{
+		
+	}
+	
+	public void		onScaledPressure2MessageReceived		(msg_scaled_pressure2 p_Message)
+	{
+		
+	}
+	
+	public void		onScaledPressure3MessageReceived		(msg_scaled_pressure3 p_Message)
+	{
+		
+	}
+	
+	public void		onHeartbeatMessageReceived				(msg_heartbeat p_Message)
+	{
+		this.setAutopilotAttr(p_Message.autopilot);
+		this.setBaseModeAttr(p_Message.base_mode);
+		this.setMavlinkVersionAttr(p_Message.mavlink_version);
+		this.setMavStateAttr(p_Message.system_status);
+		this.setMavType(p_Message.type);
+	}
+	
+	public void		onSysStatusMessageReceived				(msg_sys_status p_Message)
+	{
+		
+	}
+	
+	public void		onPowerStatusMessageReceived			(msg_power_status p_Message)
+	{
+		
+	}
+	
+	public void		onMissionCurrentMessageReceived			(msg_mission_current p_Message)
+	{
+		
+	}
+	
+	public void 	onGpsRawIntMessageReceived				(msg_gps_raw_int p_Message)
+	{
+		
+	}
+	
+	public void		onGlobalPositionMessageReceived			(msg_global_position_int p_Message)
+	{
+		
+	}
+	
+	public void 	onLocalPositionMessageReceived			(msg_local_position_ned p_Message)
+	{
+		
+	}
+	
+	public void 	onRcChannelRawMessageReceived			(msg_rc_channels_raw p_Message)
+	{
+		
+	}
+	
+	public void 	onRcChannelsMessageReceived				(msg_rc_channels p_Message)
+	{
+		
+	}
+	
+	public void		onRcChannelsScaledMessageReceived		(msg_rc_channels_scaled p_Message)
+	{
+		
+	}
+	
+	public void		onRcChannelsOverrideMessageReceived		(msg_rc_channels_override p_Message)
+	{
+		
+	}
+	
+	public void		onVfrHudMessageReceived					(msg_vfr_hud p_Message)
+	{
+		
+	}
+	
+	public void		onsystemTimeMessageReceived				(msg_system_time p_Message)
+	{
+		
+	}
+	
+	public void		onVibrationMessageReceived				(msg_vibration p_Message)
+	{
+		
+	}
+	
+	public void		onAttitudeMessageReceived				(msg_attitude p_Message)
+	{
+		this.setYawAttr(p_Message.yaw);
+		this.setPitchAttr(p_Message.pitch);
+		this.setRollAttr(p_Message.roll);
+		
+		this.setYawSpeedAttr(p_Message.yawspeed);
+		this.setPitchSpeedAttr(p_Message.pitchspeed);
+		this.setRollSpeedAttr(p_Message.rollspeed);
+	}
+	
+	public void		onTerrainReportMessageReceived			(msg_terrain_report p_Message)
+	{
+		
+	}
+	
+	public void		onTerrainRequestMessageReceived			(msg_terrain_request p_Message)
+	{
+		
+	}
+	
+	public void		onstatusTextMessageReceived				(msg_statustext p_Message)
+	{
+		
+	}
+	
+	public void		onHomePositionMessageReceived			(msg_home_position p_Message)
+	{
+		
+	}
+	
+	public void		onNavControllerOutputMessageReceived	(msg_nav_controller_output p_Message)
+	{
+		
+	}
+	
+	public void		onPositionTargetGlobalMessageReceived	(msg_position_target_global_int p_Message)
+	{
+		
+	}
+	
+	public void		onParamValueMessageReceived				(msg_param_value p_Message)
+	{
+		
+	}
+	
+	public void		onCommandAckMessageReceived				(msg_command_ack p_Message)
+	{
+		
+	}
+	
+	public void		onMissionRequestMessageReceived			(msg_mission_request p_Message)
+	{
+		
+	}
+
+	
 	
 }
 

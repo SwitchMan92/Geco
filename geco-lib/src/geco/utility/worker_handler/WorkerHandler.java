@@ -66,15 +66,12 @@ public class WorkerHandler extends Thread implements IWorkerHandler
 				
 				try 
 					{
-						while(!this.m_ThreadPool.isTerminated())
-							this.m_ThreadPool.awaitTermination(1, TimeUnit.MILLISECONDS);
+						while(!this.m_ThreadPool.awaitTermination(1, TimeUnit.SECONDS));
 					} 
 				catch (InterruptedException e) 
 					{
 						e.printStackTrace();
 					}
-				
-				
 			}
 	}
 	

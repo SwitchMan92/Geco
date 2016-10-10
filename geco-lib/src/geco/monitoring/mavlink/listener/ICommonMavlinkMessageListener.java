@@ -32,7 +32,7 @@ import com.MAVLink.common.msg_terrain_request;
 import com.MAVLink.common.msg_vfr_hud;
 import com.MAVLink.common.msg_vibration;
 
-public interface IMavlinkMessageListener 
+public interface ICommonMavlinkMessageListener 
 {
 
 	int		getSystemId								();
@@ -57,7 +57,7 @@ public interface IMavlinkMessageListener
 	void	onRcChannelsScaledMessageReceived		(msg_rc_channels_scaled p_Message);
 	void	onRcChannelsOverrideMessageReceived		(msg_rc_channels_override p_Message);
 	void	onVfrHudMessageReceived					(msg_vfr_hud p_Message);
-	void	onsystemTimeMessageReceived				(msg_system_time p_Message);
+	void	onSystemTimeMessageReceived				(msg_system_time p_Message);
 	void	onVibrationMessageReceived				(msg_vibration p_Message);
 	void	onAttitudeMessageReceived				(msg_attitude p_Message);
 	void	onTerrainReportMessageReceived			(msg_terrain_report p_Message);

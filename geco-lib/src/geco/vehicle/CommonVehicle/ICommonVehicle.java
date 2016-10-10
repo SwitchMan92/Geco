@@ -5,6 +5,7 @@ import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
 public interface ICommonVehicle 
 {
+	Short				getMavType						();
 	Short 				getAutopilot					();
 	Short 				getMavlinkVersion				();
 	Integer				getMavState						();
@@ -29,10 +30,6 @@ public interface ICommonVehicle
 	
 	void 				arm								(int p_Id);
 	void				disarm							(int p_Id);
-	
-	void 				addListener						(ICommonVehicleListener p_Listener);
-	void 				removeListener					(ICommonVehicleListener p_Listener);
-	
 	
 }
 

@@ -31,34 +31,43 @@ import com.MAVLink.common.msg_terrain_request;
 import com.MAVLink.common.msg_vfr_hud;
 import com.MAVLink.common.msg_vibration;
 
-import geco.monitoring.mavlink.listener.IMavlinkMessageListener;
+import geco.io.IDataConnector;
+import geco.io.mavlink.MavlinkMessageReceiver;
+import geco.monitoring.mavlink.listener.ICommonMavlinkMessageListener;
 
-public class CommonMavlinkMessageParser implements ICommonMavlinkMessageParser
+public class CommonMavlinkMessageRouter extends MavlinkMessageReceiver implements ICommonMavlinkMessageRouter
 {
-	private Map<Integer, ArrayList<IMavlinkMessageListener>> 		m_Listeners; 
-	
-	public CommonMavlinkMessageParser() { this.m_Listeners = new HashMap<Integer, ArrayList<IMavlinkMessageListener>>(); }
 	
 	@Override
-	public void addListener(IMavlinkMessageListener p_Listener)
+	public void onMessageReceived(MAVLinkMessage p_Message) {
+		this.parseMessage(p_Message);
+	}
+	
+	
+	private Map<Integer, ArrayList<ICommonMavlinkMessageListener>> 		m_Listeners; 
+	
+	
+	public CommonMavlinkMessageRouter() { this.m_Listeners = new HashMap<Integer, ArrayList<ICommonMavlinkMessageListener>>(); }
+	
+	@Override
+	public void addListener(ICommonMavlinkMessageListener p_Listener)
 	{
 		if (!this.m_Listeners.containsKey(p_Listener.getSystemId()))
-			this.m_Listeners.put(p_Listener.getSystemId(),new ArrayList<IMavlinkMessageListener>());
+			this.m_Listeners.put(p_Listener.getSystemId(),new ArrayList<ICommonMavlinkMessageListener>());
 		
 		if (!this.m_Listeners.get(p_Listener.getSystemId()).contains(p_Listener))
 			this.m_Listeners.get(p_Listener.getSystemId()).add(p_Listener);
 	}
 	
 	@Override
-	public void removeListener(IMavlinkMessageListener p_Listener)
+	public void removeListener(ICommonMavlinkMessageListener p_Listener)
 	{
 		if (this.m_Listeners.containsKey(p_Listener.getSystemId()))
 			if (this.m_Listeners.get(p_Listener.getSystemId()).contains(p_Listener))
 				this.m_Listeners.get(p_Listener.getSystemId()).remove(p_Listener);
 	}
 
-	@Override
-	public void parseMessage(MAVLinkMessage p_Message) 
+	private void parseMessage(MAVLinkMessage p_Message) 
 	{
 		Integer l_SystemId = p_Message.sysid;
 		
@@ -213,6 +222,33 @@ public class CommonMavlinkMessageParser implements ICommonMavlinkMessageParser
 				});
 			}
 	}
+
+	
+	
+	@Override
+	public void onConnected(IDataConnector p_Connector) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onDisconnected(IDataConnector p_Connector) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onConnectionLost(IDataConnector p_Connector) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onReconnected(IDataConnector p_Connector) {
+		// TODO Auto-generated method stub
+		
+	}
+
 	
 	
 }
