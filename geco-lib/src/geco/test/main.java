@@ -3,23 +3,17 @@ package geco.test;
 import java.util.Arrays;
 import java.util.Scanner;
 
-import com.MAVLink.common.msg_command_long;
 import com.MAVLink.common.msg_mission_count;
-import com.MAVLink.common.msg_mission_item;
-import com.MAVLink.common.msg_mission_set_current;
-import com.MAVLink.enums.MAV_CMD;
-import com.MAVLink.enums.MAV_FRAME;
 
 public class main
 {
-
 	public static void main(String[] args) 
 	{
 		try
 			{
 				CustomVehicle l_Vehicle = new CustomVehicle();
 			
-				l_Vehicle.connect("tcp", "192.168.42.135", 5762);
+				l_Vehicle.connect("tcp", "127.0.0.1", 5762);
 				
 				Scanner reader = new Scanner(System.in);  // Reading from System.in
 				
@@ -77,11 +71,10 @@ public class main
 						
 						case 7:
 							
-							
 							msg_mission_count l_MsgCount = new msg_mission_count();
 							
 							l_MsgCount.target_system 	= 0;
-							l_MsgCount.target_component 	= 0;
+							l_MsgCount.target_component = 0;
 							
 							l_MsgCount.count = 1;
 							
@@ -90,11 +83,7 @@ public class main
 						default:
 							break;
 					}
-					
-					
 				}
-				
-				
 			}
 		catch(Exception e)
 			{

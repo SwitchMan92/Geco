@@ -2,18 +2,14 @@ package geco.test;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.util.Arrays;
 
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
-import com.MAVLink.common.msg_command_int;
 import com.MAVLink.common.msg_command_long;
 import com.MAVLink.common.msg_param_request_list;
 import com.MAVLink.common.msg_param_set;
-import com.MAVLink.common.msg_param_value;
 import com.MAVLink.common.msg_set_mode;
 import com.MAVLink.enums.MAV_CMD;
-import com.MAVLink.enums.MAV_PARAM_TYPE;
 
 import geco.io.IDataConnector;
 import geco.vehicle.CommonVehicle.CommonVehicle;
@@ -39,7 +35,6 @@ public class CustomVehicle extends CommonVehicle
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		
 	}
 	
 	public void requestParameters()

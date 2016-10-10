@@ -7,7 +7,6 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 
-
 public abstract class DataConnector extends IDataConnector implements Runnable
 {
 	public class DisconnectedException 			extends Exception { 
@@ -51,17 +50,37 @@ public abstract class DataConnector extends IDataConnector implements Runnable
 	private CONNECTOR_STATUS						m_Status;
 	private ReentrantLock							m_StatusLock;
 	
-	private final ReentrantLock						m_ConnectedLock			=	new ReentrantLock();
-    private final Condition 						m_ConnectedCondition	=	m_ConnectedLock.newCondition();
 	
 	abstract byte[] 	readDataFromServer	() throws Exception;
 	
 	protected String 	getAddress			() { return this.m_Address; }
 	protected int 		getPort				() { return this.m_Port; }
 	
+	/*
+	final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
+
+	public static String bytesToHex(byte[] bytes) {
+	    char[] hexChars = new char[bytes.length * 2];
+	    for ( int j = 0; j < bytes.length; j++ ) {
+	        int v = bytes[j] & 0xFF;
+	        hexChars[j * 2] = hexArray[v >>> 4];
+	        hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+	    }
+	    return new String(hexChars);
+	}*/
+	
 	protected boolean isConnected()
 		{
-			return this.getStatus() == CONNECTOR_STATUS.CS_CONNECTED;
+			this.m_StatusLock.lock();
+		
+			try
+				{
+					return this.m_Status == CONNECTOR_STATUS.CS_CONNECTED;
+				}
+			finally
+				{
+					this.m_StatusLock.unlock();
+				}
 		}
 	
 	protected DataConnector()
@@ -98,17 +117,6 @@ public abstract class DataConnector extends IDataConnector implements Runnable
 		this.setPort(p_Port);
 		this.setStatus(CONNECTOR_STATUS.CS_CONNECTED);
 		this.onConnected();
-		
-		this.m_ConnectedLock.lock();
-		
-		try
-			{
-				this.m_ConnectedCondition.signal();
-			}
-		finally
-			{
-				this.m_ConnectedLock.unlock();
-			}
 	}
 	
 	public void disconnect() throws Exception
@@ -147,43 +155,37 @@ public abstract class DataConnector extends IDataConnector implements Runnable
 	
 	@Override
 	public void run()
-	{
-		while(true)
-			{
-				this.m_ConnectedLock.lock();
+	{	
+		this.m_StatusLock.lock();
 			
-				try 
-					{	
-						if (this.isConnected())
-							{
-								byte[] l_Data = this.readDataFromServer();
-								this.sendDataToReceivers(l_Data);
-							}
-						else
-							{
-								this.m_ConnectedCondition.await();
-							}
-					}
-				catch (DisconnectedException|LinkException ioe) 
+		try 
+			{	
+				if (this.m_Status == CONNECTOR_STATUS.CS_CONNECTED)
 					{
-						ioe.printStackTrace();
-						try { this.disconnect(); this.onConnectionLost(); } 
-						catch (Exception e) { e.printStackTrace(); }
-					}
-				catch(InterruptedException ie)
-					{
-						try { this.disconnect(); this.onDisconnected(); } 
-						catch (Exception e) { e.printStackTrace(); }
-					}
-				catch (Exception e) 
-					{
-						e.printStackTrace();
-					}
-				finally
-					{
-						this.m_ConnectedLock.unlock();
+						byte[] l_Data = this.readDataFromServer();
+						this.sendDataToReceivers(l_Data);
 					}
 			}
+		catch (DisconnectedException|LinkException ioe) 
+			{
+				ioe.printStackTrace();
+				try { this.disconnect(); this.onConnectionLost(); } 
+				catch (Exception e) { e.printStackTrace(); }
+			}
+		catch(InterruptedException ie)
+			{
+				try { this.disconnect(); this.onDisconnected(); } 
+				catch (Exception e) { e.printStackTrace(); }
+			}
+		catch (Exception e) 
+			{
+				e.printStackTrace();
+			}
+		finally
+			{
+				this.m_StatusLock.unlock();
+			}
+			
 	}
 	
 	private void onConnected()

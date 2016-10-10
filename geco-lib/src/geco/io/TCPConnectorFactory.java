@@ -2,36 +2,24 @@ package geco.io;
 
 public class TCPConnectorFactory extends DataConnectorFactory
 {
-	static
+	
+	private static TCPConnectorFactory g_Handler;
+	
+	public static void init() throws Exception
 		{
-			try
-				{
-					TCPConnectorFactory.init(32);
-				}
-			catch (Exception e)
-				{
-					e.printStackTrace();
-				}
+			if (TCPConnectorFactory.g_Handler == null)
+				TCPConnectorFactory.g_Handler = new TCPConnectorFactory();
 		}
 	
-	private static TCPConnectorFactory g_Factory;
-	
-	public static void init(int p_NumThreads) throws Exception
-	{
-		if (TCPConnectorFactory.g_Factory == null)
-			TCPConnectorFactory.g_Factory = new TCPConnectorFactory(p_NumThreads);
-		else
-			throw new Exception("Factory already initialized");
-	}
-	
 	public static TCPConnectorFactory getInstance()
-	{
-		return TCPConnectorFactory.g_Factory;
-	}
+		{
+			return TCPConnectorFactory.g_Handler;
+		}
+	
 
-	private TCPConnectorFactory(int p_NumThreads)
+	public TCPConnectorFactory() throws Exception
 	{
-		super(p_NumThreads);
+		super();
 	}
 
 	@Override
