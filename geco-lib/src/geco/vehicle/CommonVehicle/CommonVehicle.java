@@ -36,18 +36,20 @@ import com.MAVLink.common.msg_vfr_hud;
 import com.MAVLink.common.msg_vibration;
 
 import geco.io.IDataConnector;
+import geco.io.TCPConnector;
 import geco.io.TCPConnectorFactory;
+import geco.io.UDPConnector;
 import geco.io.UDPConnectorFactory;
 import geco.io.mavlink.IMavlinkMessageEmitter;
 import geco.io.mavlink.MavlinkMessageEmitter;
+import geco.monitoring.mavlink.dispatcher.CommonMavlinkMessageDispatcher;
 import geco.monitoring.mavlink.listener.CommonMavlinkMessageListener;
-import geco.monitoring.mavlink.router.CommonMavlinkMessageRouter;
 
 public abstract class CommonVehicle extends CommonMavlinkMessageListener implements ICommonVehicle, IMavlinkMessageEmitter
 {
 	
 	private MavlinkMessageEmitter				m_Emitter;
-	private CommonMavlinkMessageRouter			m_MessageParser;
+	private CommonMavlinkMessageDispatcher		m_MessageParser;
 	
 	private IDataConnector 						m_Connector;
 	
@@ -73,6 +75,7 @@ public abstract class CommonVehicle extends CommonMavlinkMessageListener impleme
 	private Integer								m_Longitude;
 	private Integer								m_Latitude;
 	private Double								m_Height;
+	
 	
 	
 	protected abstract void	onYawChanged				(double p_Yaw);
@@ -145,20 +148,38 @@ public abstract class CommonVehicle extends CommonMavlinkMessageListener impleme
 	
 	public 					CommonVehicle				()
 	{	
-		super(0, 0);
+		super(1, 0);
 		
-		this.m_MessageParser			=	new CommonMavlinkMessageRouter();
+		this.m_MessageParser			=	new CommonMavlinkMessageDispatcher();
 		this.m_Acceleration				= 	new Vector3D(0d, 0d, 0d);
 		this.m_AngularSpeed				= 	new Vector3D(0d, 0d, 0d);
 		this.m_MagneticField			= 	new Vector3D(0d, 0d, 0d);
 		this.m_Emitter					=	new MavlinkMessageEmitter();
+		
+		this.m_Autopilot				=	0;
+		this.m_MavlinkVersion			=	0;
+		this.m_MavType					=	0;
+		this.m_MavState					=	0;
+		this.m_BaseMode					=	0;
+		
+		this.m_Yaw						=	0d;
+		this.m_Pitch					=	0d;
+		this.m_Roll						=	0d;
+		
+		this.m_YawSpeed					=	0d;
+		this.m_PitchSpeed				=	0d;
+		this.m_RollSpeed				=	0d;
+		
+		this.m_Latitude					=	0;
+		this.m_Longitude				=	0;
+		this.m_Height					=	0d;
 	}
 	
 	public CommonVehicle(int p_SystemId, int p_ComponentId)
 	{
 		super(p_SystemId, p_ComponentId);
 		
-		this.m_MessageParser			=	new CommonMavlinkMessageRouter();
+		this.m_MessageParser			=	new CommonMavlinkMessageDispatcher();
 		this.m_Acceleration				= 	new Vector3D(0d, 0d, 0d);
 		this.m_AngularSpeed				= 	new Vector3D(0d, 0d, 0d);
 		this.m_MagneticField			= 	new Vector3D(0d, 0d, 0d);
@@ -173,18 +194,18 @@ public abstract class CommonVehicle extends CommonMavlinkMessageListener impleme
 					{
 						case "TCP":
 							this.m_Connector = TCPConnectorFactory.getInstance().createConnector();
-							this.m_MessageParser = new CommonMavlinkMessageRouter();
+							this.m_MessageParser = new CommonMavlinkMessageDispatcher();
 							this.m_MessageParser.addListener(this);
 							this.m_Connector.addReceiver(this.m_MessageParser);
-							this.m_Connector.connect(p_Address, p_Port);
+							((TCPConnector)this.m_Connector).connect(p_Address, p_Port);
 							this.m_Emitter.addConnector(this.m_Connector);
 							break;
 						case "UDP":
 							this.m_Connector = UDPConnectorFactory.getInstance().createConnector();
-							this.m_MessageParser = new CommonMavlinkMessageRouter();
+							this.m_MessageParser = new CommonMavlinkMessageDispatcher();
 							this.m_MessageParser.addListener(this);
 							this.m_Connector.addReceiver(this.m_MessageParser);
-							this.m_Connector.connect(p_Address, p_Port);
+							((UDPConnector)this.m_Connector).connect(p_Address, p_Port);
 							this.m_Emitter.addConnector(this.m_Connector);
 							break;
 					}
@@ -364,7 +385,7 @@ public abstract class CommonVehicle extends CommonMavlinkMessageListener impleme
 	
 	public void		onCommandAckMessageReceived				(msg_command_ack p_Message)
 	{
-		
+		System.err.println("command acknowledged : " + String.valueOf(p_Message.command));
 	}
 	
 	public void		onMissionRequestMessageReceived			(msg_mission_request p_Message)

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public abstract class IDataConnector
 {
-	public abstract void 						connect				(String p_Address, int p_Port) 		throws Exception;
+	public abstract void 						connect				(String p_Address) 					throws Exception;
 	public abstract void 						disconnect			() 									throws Exception;
 	
 	abstract void 								sendDataToServer	(byte[] p_Data)						throws Exception;

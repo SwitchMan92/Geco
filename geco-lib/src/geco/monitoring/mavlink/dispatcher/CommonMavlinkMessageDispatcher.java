@@ -1,4 +1,4 @@
-package geco.monitoring.mavlink.router;
+package geco.monitoring.mavlink.dispatcher;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,7 +36,7 @@ import geco.io.IDataConnector;
 import geco.io.mavlink.MavlinkMessageReceiver;
 import geco.monitoring.mavlink.listener.ICommonMavlinkMessageListener;
 
-public class CommonMavlinkMessageRouter extends MavlinkMessageReceiver implements ICommonMavlinkMessageRouter
+public class CommonMavlinkMessageDispatcher extends MavlinkMessageReceiver implements ICommonMavlinkMessageDispatcher
 {
 	
 	@Override
@@ -44,11 +44,12 @@ public class CommonMavlinkMessageRouter extends MavlinkMessageReceiver implement
 		this.parseMessage(p_Message);
 	}
 	
-	
 	private Map<Integer, ArrayList<ICommonMavlinkMessageListener>> 		m_Listeners; 
 	
-	
-	public CommonMavlinkMessageRouter() { this.m_Listeners = new HashMap<Integer, ArrayList<ICommonMavlinkMessageListener>>(); }
+	public CommonMavlinkMessageDispatcher() 
+	{ 
+		this.m_Listeners = new HashMap<Integer, ArrayList<ICommonMavlinkMessageListener>>();
+	}
 	
 	@Override
 	public void addListener(ICommonMavlinkMessageListener p_Listener)
@@ -76,7 +77,7 @@ public class CommonMavlinkMessageRouter extends MavlinkMessageReceiver implement
 			{
 				this.m_Listeners.get(l_SystemId).forEach((l_Listener) -> {
 					l_Listener.onHeartbeatMessageReceived((msg_heartbeat) p_Message);
-				}); 
+				});
 			}
 		else if (p_Message instanceof msg_raw_imu)
 			{
@@ -229,33 +230,24 @@ public class CommonMavlinkMessageRouter extends MavlinkMessageReceiver implement
 				});
 			}
 	}
-
-	
 	
 	@Override
 	public void onConnected(IDataConnector p_Connector) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void onDisconnected(IDataConnector p_Connector) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void onConnectionLost(IDataConnector p_Connector) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void onReconnected(IDataConnector p_Connector) {
-		// TODO Auto-generated method stub
 		
 	}
-
-	
-	
 }

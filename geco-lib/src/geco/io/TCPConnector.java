@@ -4,7 +4,7 @@ import java.net.Socket;
 import java.util.concurrent.locks.ReentrantLock;
 
 
-public class TCPConnector extends DataConnector
+public class TCPConnector extends SocketConnector
 {
 	private Socket 			m_ClientSocket;
 	private ReentrantLock	m_SocketLock;

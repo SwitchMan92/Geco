@@ -5,7 +5,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
-public class UDPConnector extends DataConnector
+public class UDPConnector extends SocketConnector
 {
 	private DatagramSocket 	m_ClientSocket;
 	private InetAddress		m_IpAddress;

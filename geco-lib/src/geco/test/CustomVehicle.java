@@ -6,9 +6,11 @@ import java.io.FileReader;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
 import com.MAVLink.common.msg_command_long;
+import com.MAVLink.common.msg_mission_ack;
 import com.MAVLink.common.msg_param_request_list;
 import com.MAVLink.common.msg_param_set;
 import com.MAVLink.common.msg_set_mode;
+import com.MAVLink.common.msg_statustext;
 import com.MAVLink.common.msg_system_time;
 import com.MAVLink.enums.MAV_CMD;
 
@@ -110,9 +112,6 @@ public class CustomVehicle extends CommonVehicle
 			{
 				e.printStackTrace();
 			}
-		
-		
-		
 	}
 	
 	public void				sendLong					(short command, float...params)
@@ -219,29 +218,6 @@ public class CustomVehicle extends CommonVehicle
 			}
 	}
 	
-	@Override
-	public void onConnected(IDataConnector p_Connector) {
-		// TODO Auto-generated method stub
-		System.out.println("connected");
-	}
-
-	@Override
-	public void onDisconnected(IDataConnector p_Connector) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onConnectionLost(IDataConnector p_Connector) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onReconnected(IDataConnector p_Connector) {
-		// TODO Auto-generated method stub
-		
-	}
 
 	@Override
 	protected void onYawChanged(double p_Yaw) {
@@ -386,6 +362,42 @@ public class CustomVehicle extends CommonVehicle
 
 	@Override
 	protected void onMavTypeChanged(short p_Mavtype) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onStatusTextMessageReceived(msg_statustext p_Message) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onMissionAckMessageReceived(msg_mission_ack p_Message) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onConnected() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onDisconnected() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onConnectionLost() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onReconnected() {
 		// TODO Auto-generated method stub
 		
 	}

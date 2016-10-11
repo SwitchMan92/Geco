@@ -56,18 +56,6 @@ public abstract class DataConnector extends IDataConnector implements Runnable
 	protected String 	getAddress			() { return this.m_Address; }
 	protected int 		getPort				() { return this.m_Port; }
 	
-	/*
-	final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
-
-	public static String bytesToHex(byte[] bytes) {
-	    char[] hexChars = new char[bytes.length * 2];
-	    for ( int j = 0; j < bytes.length; j++ ) {
-	        int v = bytes[j] & 0xFF;
-	        hexChars[j * 2] = hexArray[v >>> 4];
-	        hexChars[j * 2 + 1] = hexArray[v & 0x0F];
-	    }
-	    return new String(hexChars);
-	}*/
 	
 	protected boolean isConnected()
 		{
@@ -99,22 +87,13 @@ public abstract class DataConnector extends IDataConnector implements Runnable
 		
 	}
 
-	public void setPort(int p_Port) throws Exception
-	{
-		if (this.getStatus() == CONNECTOR_STATUS.CS_DISCONNECTED)
-			this.m_Port = p_Port;
-		else
-			throw new Exception("Close Connector before trying to change port");
-	}
-	
-	public void connect(String p_Address, int p_Port) throws Exception
+	public void connect(String p_Address) throws Exception
 	{
 		
 		if (this.isConnected())
 			throw new Exception("Close connection before connecting the connector");
 		
 		this.setAddress(p_Address);
-		this.setPort(p_Port);
 		this.setStatus(CONNECTOR_STATUS.CS_CONNECTED);
 		this.onConnected();
 	}

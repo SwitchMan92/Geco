@@ -71,5 +71,9 @@ public interface ICommonMavlinkMessageListener
 	void	onCommandAckMessageReceived				(msg_command_ack p_Message);
 	void	onMissionRequestMessageReceived			(msg_mission_request p_Message);
 	void	onMissionAckMessageReceived				(msg_mission_ack p_Message);
+	void	onConnected								();
+	void	onDisconnected							();
+	void	onConnectionLost						();
+	void	onReconnected							();
 	
 }

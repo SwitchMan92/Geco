@@ -7,12 +7,14 @@ public class TCPConnectorFactory extends DataConnectorFactory
 	
 	public static void init() throws Exception
 		{
-			if (TCPConnectorFactory.g_Handler == null)
-				TCPConnectorFactory.g_Handler = new TCPConnectorFactory();
+			TCPConnectorFactory.g_Handler = new TCPConnectorFactory();
 		}
 	
-	public static TCPConnectorFactory getInstance()
+	public static TCPConnectorFactory getInstance() throws Exception
 		{
+			if (TCPConnectorFactory.g_Handler == null)
+				TCPConnectorFactory.init();
+			
 			return TCPConnectorFactory.g_Handler;
 		}
 	
