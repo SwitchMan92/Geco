@@ -9,6 +9,7 @@ import com.MAVLink.common.msg_command_long;
 import com.MAVLink.common.msg_param_request_list;
 import com.MAVLink.common.msg_param_set;
 import com.MAVLink.common.msg_set_mode;
+import com.MAVLink.common.msg_system_time;
 import com.MAVLink.enums.MAV_CMD;
 
 import geco.io.IDataConnector;
@@ -367,6 +368,24 @@ public class CustomVehicle extends CommonVehicle
 
 	@Override
 	public void disarm(int p_Id) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public Short getMavType() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void onSystemTimeMessageReceived(msg_system_time p_Message) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void onMavTypeChanged(short p_Mavtype) {
 		// TODO Auto-generated method stub
 		
 	}

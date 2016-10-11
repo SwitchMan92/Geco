@@ -8,7 +8,7 @@ public interface ICommonMavlinkActor
 {
 	void 	sendHearbeat	();
 	void	sendWaypoints	(ArrayList<IGlobalWaypoint> p_Waypoints);
-	void 	setMode			(short p_Mode);
+	void 	setMode			(short p_Mode, short p_CustomMode);
 	void 	armMotors		();
 	void	goToWaypoint	(int p_WaypointIndex);
 }

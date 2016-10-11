@@ -41,7 +41,7 @@ import geco.io.UDPConnectorFactory;
 import geco.io.mavlink.IMavlinkMessageEmitter;
 import geco.io.mavlink.MavlinkMessageEmitter;
 import geco.monitoring.mavlink.listener.CommonMavlinkMessageListener;
-import geco.monitoring.mavlink.parser.CommonMavlinkMessageRouter;
+import geco.monitoring.mavlink.router.CommonMavlinkMessageRouter;
 
 public abstract class CommonVehicle extends CommonMavlinkMessageListener implements ICommonVehicle, IMavlinkMessageEmitter
 {

@@ -7,6 +7,7 @@ import com.MAVLink.common.msg_gps_raw_int;
 import com.MAVLink.common.msg_heartbeat;
 import com.MAVLink.common.msg_home_position;
 import com.MAVLink.common.msg_local_position_ned;
+import com.MAVLink.common.msg_mission_ack;
 import com.MAVLink.common.msg_mission_current;
 import com.MAVLink.common.msg_mission_request;
 import com.MAVLink.common.msg_nav_controller_output;
@@ -62,12 +63,13 @@ public interface ICommonMavlinkMessageListener
 	void	onAttitudeMessageReceived				(msg_attitude p_Message);
 	void	onTerrainReportMessageReceived			(msg_terrain_report p_Message);
 	void	onTerrainRequestMessageReceived			(msg_terrain_request p_Message);
-	void	onstatusTextMessageReceived				(msg_statustext p_Message);
+	void	onStatusTextMessageReceived				(msg_statustext p_Message);
 	void	onHomePositionMessageReceived			(msg_home_position p_Message);
 	void	onNavControllerOutputMessageReceived	(msg_nav_controller_output p_Message);
 	void	onPositionTargetGlobalMessageReceived	(msg_position_target_global_int p_Message);
 	void	onParamValueMessageReceived				(msg_param_value p_Message);
 	void	onCommandAckMessageReceived				(msg_command_ack p_Message);
 	void	onMissionRequestMessageReceived			(msg_mission_request p_Message);
+	void	onMissionAckMessageReceived				(msg_mission_ack p_Message);
 	
 }

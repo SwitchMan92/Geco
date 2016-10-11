@@ -1,4 +1,4 @@
-package geco.monitoring.mavlink.parser;
+package geco.monitoring.mavlink.router;
 
 import geco.monitoring.mavlink.listener.ICommonMavlinkMessageListener;
 

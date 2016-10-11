@@ -1,4 +1,4 @@
-package geco.monitoring.mavlink.parser;
+package geco.monitoring.mavlink.router;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,6 +12,7 @@ import com.MAVLink.common.msg_gps_raw_int;
 import com.MAVLink.common.msg_heartbeat;
 import com.MAVLink.common.msg_home_position;
 import com.MAVLink.common.msg_local_position_ned;
+import com.MAVLink.common.msg_mission_ack;
 import com.MAVLink.common.msg_mission_current;
 import com.MAVLink.common.msg_mission_request;
 import com.MAVLink.common.msg_nav_controller_output;
@@ -152,7 +153,7 @@ public class CommonMavlinkMessageRouter extends MavlinkMessageReceiver implement
 		else if (p_Message instanceof msg_system_time)
 			{
 				this.m_Listeners.get(l_SystemId).forEach((l_Listener) -> {
-					l_Listener.onsystemTimeMessageReceived((msg_system_time) p_Message);
+					l_Listener.onSystemTimeMessageReceived((msg_system_time) p_Message);
 				});
 			}
 		else if (p_Message instanceof msg_vibration)
@@ -182,7 +183,7 @@ public class CommonMavlinkMessageRouter extends MavlinkMessageReceiver implement
 		else if (p_Message instanceof msg_statustext)
 			{
 				this.m_Listeners.get(l_SystemId).forEach((l_Listener) -> {
-					l_Listener.onstatusTextMessageReceived((msg_statustext) p_Message);
+					l_Listener.onStatusTextMessageReceived((msg_statustext) p_Message);
 				});
 			}
 		else if (p_Message instanceof msg_home_position)
@@ -219,6 +220,12 @@ public class CommonMavlinkMessageRouter extends MavlinkMessageReceiver implement
 			{
 				this.m_Listeners.get(l_SystemId).forEach((l_Listener) -> {
 					l_Listener.onMissionRequestMessageReceived((msg_mission_request) p_Message);
+				});
+			}
+		else if (p_Message instanceof msg_mission_ack)
+			{
+				this.m_Listeners.get(l_SystemId).forEach((l_Listener) -> {
+					l_Listener.onMissionAckMessageReceived((msg_mission_ack) p_Message);
 				});
 			}
 	}
