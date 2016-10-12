@@ -20,68 +20,7 @@ import geco.vehicle.CommonVehicle.CommonVehicle;
 public class CustomVehicle extends CommonVehicle
 {
 	
-	public void setMode(int p_Mode)
-	{
-		msg_set_mode l_Message = new msg_set_mode();
-		
-		l_Message.target_system = 0;
-		
-		l_Message.base_mode = 255;
-		l_Message.custom_mode = (short)p_Mode; 
-		
-		try 
-			{
-				this.sendMessage(l_Message);
-			} 
-		catch (Exception e) 
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-	}
 	
-	public void requestParameters()
-	{
-		msg_param_request_list l_Message = new msg_param_request_list();
-		
-		l_Message.target_system = 0;
-		l_Message.target_component = 0;
-		
-		try 
-		{
-			this.sendMessage(l_Message);
-		} 
-		catch (Exception e) 
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		
-	}
-	
-	public void setParameter(String p_Name, float p_Value)
-	{
-		msg_param_set l_Message = new msg_param_set();
-		
-		l_Message.target_system = 0;
-		l_Message.target_component = 0;
-		
-		l_Message.param_id = p_Name.getBytes();
-		l_Message.param_value = p_Value;
-
-		try 
-		{
-			this.sendMessage(l_Message);
-			Thread.sleep(50);
-		} 
-		catch (Exception e) 
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			System.err.flush();
-		}
-	}
 	
 	public void setParameters()
 	{
@@ -112,24 +51,6 @@ public class CustomVehicle extends CommonVehicle
 			{
 				e.printStackTrace();
 			}
-	}
-	
-	public void				sendLong					(short command, float...params)
-	{
-		msg_command_long l_Message = new msg_command_long();
-		
-		l_Message.target_system = 0;
-		l_Message.target_component = 0;
-		
-		l_Message.command = command;
-		
-		l_Message.param1 = params[0];
-		l_Message.param2 = params[1];
-		l_Message.param3 = params[2];
-		l_Message.param4 = params[3];
-		l_Message.param5 = params[4];
-		l_Message.param6 = params[5];
-		l_Message.param7 = params[6];
 	}
 	
 	public void arm_throttle()
